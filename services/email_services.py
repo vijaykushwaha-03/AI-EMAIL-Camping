@@ -15,8 +15,8 @@ EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 SMTP_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
 SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
 
-def _make_message(subject: str, html_body: str, recipients: list[str], ics_bytes: bytes | None = None) -> MIMEMultipart:
-    """Constructs an email message with HTML body and optional calendar attachment. Returns MIMEMultipart."""
+def _make_message(subject: str, html_body: str, recipients: list[str], attachment_paths: list[str] | None = None) -> MIMEMultipart:
+    """Constructs an email message with HTML body and optional attachments. Returns MIMEMultipart."""
 
 
     if not isinstance(recipients, list):
@@ -37,37 +37,33 @@ def _make_message(subject: str, html_body: str, recipients: list[str], ics_bytes
     outer.attach(alt)
 
 
-    if ics_bytes:
-        part = MIMEBase('text', 'calendar', method='REQUEST', name='invite.ics')
-        part.set_payload(ics_bytes)
-        encoders.encode_base64(part)
-
-
-        # Important headers to trigger Accept/Decline UI in Gmail/Outlook
-        part.add_header('Content-Type', 'text/calendar; method=REQUEST; charset=UTF-8')
-        part.add_header('Content-Disposition', 'attachment; filename="invite.ics"')
-        part.add_header('Content-Class', 'urn:content-classes:calendarmessage')
-
-
-        outer.attach(part)
+    if attachment_paths:
+        for path in attachment_paths:
+            try:
+                with open(path, 'rb') as f:
+                    file_data = f.read()
+                    filename = os.path.basename(path)
+                
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload(file_data)
+                encoders.encode_base64(part)
+                
+                part.add_header('Content-Disposition', f'attachment; filename="{filename}"')
+                outer.attach(part)
+            except Exception as e:
+                print(f"Failed to attach file {path}: {e}")
 
 
     return outer
 
-def send_email(subject: str, body_html: str, to_emails: list[str], attachment_path: str | None = None) -> bool:
-    """Send email to one or many recipients. If attachment_path provided, read and attach as calendar invite."""
+def send_email(subject: str, body_html: str, to_emails: list[str], attachment_paths: list[str] | None = None) -> bool:
+    """Send email to one or many recipients. If attachment_paths provided, read and attach files."""
 
 
     recipients = to_emails if isinstance(to_emails, list) else [to_emails]
 
 
-    ics_bytes = None
-    if attachment_path:
-        with open(attachment_path, 'rb') as f:
-            ics_bytes = f.read()
-
-
-    msg = _make_message(subject, body_html, recipients, ics_bytes)
+    msg = _make_message(subject, body_html, recipients, attachment_paths)
 
 
     try:
