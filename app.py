@@ -13,7 +13,18 @@ st.title('AI Email Marketing Agent')
 # --- Sidebar for Configuration ---
 with st.sidebar:
     st.header("Configuration")
-    st.info("Ensure your .env file has valid SMTP and OpenAI credentials.")
+    st.info("Ensure your .env file has valid SMTP and AI credentials.")
+    
+    ai_provider = st.selectbox("Select AI Provider", ["OpenAI", "OpenRouter", "Gemini"])
+    
+    model_name = "gpt-4o-mini" # Default
+    if ai_provider == "OpenAI":
+        model_name = st.text_input("Model Name", "gpt-4o-mini")
+    elif ai_provider == "OpenRouter":
+        model_name = st.text_input("Model Name", "openai/gpt-5.1")
+    elif ai_provider == "Gemini":
+        model_name = st.text_input("Model Name", "google/gemini-pro")
+
 
 # --- Step 1: Upload Contacts ---
 st.header("1. Upload Contacts (CSV)")
@@ -68,19 +79,53 @@ if st.button("Generate Email Template"):
         Keep it concise, engaging, and professional.
         """
         with st.spinner("Generating email..."):
-            generated_email = generate_email_template(prompt)
-            st.session_state['generated_email'] = generated_email
+            # Now returns a dict
+            ai_data = generate_email_template(prompt, provider=ai_provider, model=model_name)
+            st.session_state['ai_data'] = ai_data
             st.success("Email generated!")
 
-if 'generated_email' in st.session_state:
+if 'ai_data' in st.session_state:
     st.subheader("Preview")
-    email_content = st.text_area("Edit Email Content", st.session_state['generated_email'], height=300)
-    st.session_state['generated_email'] = email_content # Update if edited
+    
+    # Allow editing the AI content
+    with st.expander("Edit Content"):
+        subject = st.text_input("Subject", st.session_state['ai_data'].get('subject', ''))
+        title = st.text_input("Title", st.session_state['ai_data'].get('title', ''))
+        body = st.text_area("Body", st.session_state['ai_data'].get('body', ''), height=200)
+        cta_text = st.text_input("CTA Text", st.session_state['ai_data'].get('cta_text', ''))
+        cta_link = st.text_input("CTA Link", "https://your-website.com") # Default or input
+        
+        # Update session state
+        st.session_state['ai_data']['subject'] = subject
+        st.session_state['ai_data']['title'] = title
+        st.session_state['ai_data']['body'] = body
+        st.session_state['ai_data']['cta_text'] = cta_text
+        st.session_state['ai_data']['cta_link'] = cta_link
+
+    # Render HTML
+    try:
+        with open("templates/custom_email_template.html", "r") as f:
+            template_html = f.read()
+            
+        rendered_html = template_html.replace("{{ EMAIL_TITLE }}", title) \
+                                     .replace("{{ EMAIL_BODY }}", body) \
+                                     .replace("{{ CTA_TEXT }}", cta_text) \
+                                     .replace("{{ CTA_LINK }}", cta_link) \
+                                     .replace("{{ COMPANY_NAME }}", company_name)
+        
+        st.session_state['final_html'] = rendered_html
+        
+        st.subheader("HTML Preview")
+        st.components.v1.html(rendered_html, height=600, scrolling=True)
+        
+    except FileNotFoundError:
+        st.error("Template file not found. Please ensure 'templates/custom_email_template.html' exists.")
+
 
 # --- Step 5: Send Emails ---
 st.header("5. Send Emails")
 
-if 'generated_email' in st.session_state and valid_recipients:
+if 'final_html' in st.session_state and valid_recipients:
     batch_size = st.selectbox("Select Batch Size", ["Test (1 email)", "15", "50", "100", "All"])
     
     if st.button("Send Emails"):
@@ -110,14 +155,13 @@ if 'generated_email' in st.session_state and valid_recipients:
         
         for i, recipient in enumerate(recipients_to_send):
             # Personalize email
-            personalized_body = st.session_state['generated_email'].replace("[Name]", recipient.get('name', 'there'))
+            # Note: The template might not have [Name] placeholder in the body if AI didn't put it there.
+            # But we can try to replace it if it exists in the rendered HTML.
+            personalized_html = st.session_state['final_html'].replace("[Name]", recipient.get('name', 'there'))
             
-            # Simple HTML wrapper
-            html_body = f"<html><body><p>{personalized_body.replace(chr(10), '<br>')}</p></body></html>"
+            subject = st.session_state['ai_data'].get('subject', f"Regarding {product_name}")
             
-            subject = f"Regarding {product_name}" # You might want to make this customizable too
-            
-            success = send_email(subject, html_body, [recipient['email']], attachment_paths)
+            success = send_email(subject, personalized_html, [recipient['email']], attachment_paths)
             
             status_log.append({
                 "Email": recipient['email'],
@@ -142,6 +186,3 @@ if 'generated_email' in st.session_state and valid_recipients:
             "text/csv",
             key='download-csv'
         )
-        
-        # Cleanup temp files
-        # (In a real app, you'd want more robust cleanup)
