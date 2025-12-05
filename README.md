@@ -1,173 +1,102 @@
-# AI Meeting Scheduler 🤖📅
+# AI Email Marketing Agent 🤖📧
 
-> Built by an AI enthusiast who is always ready to learn and implement cutting-edge AI agent technologies. This project showcases the power of AI-driven automation in everyday business workflows.
+> **Transform your email marketing with AI-powered personalization and beautiful HTML templates.**
 
-## About Me 👨‍💻
+Built by an AI enthusiast, this project has evolved from a simple meeting scheduler into a powerful **AI Email Marketing Agent**. It leverages advanced LLMs (via OpenRouter, OpenAI, or Gemini) to generate persuasive, personalized email content and injects it into professional HTML templates.
 
+## Key Features ✨
 
+-   **Multi-Provider AI Support**: Choose between **OpenAI**, **OpenRouter** (access to GPT-5.1, Claude 3.5, etc.), and **Gemini**.
+-   **Custom HTML Templates**: Uses a professional, responsive HTML template ("Fresh Colors" style) for all emails.
+-   **Dynamic Content Injection**: AI automatically generates the **Subject**, **Title**, **Body**, and **Call-to-Action** based on your campaign goals.
+-   **Bulk Sending**: Upload a CSV of contacts and send personalized emails in batches (Test, 15, 50, 100, or All).
+-   **Live Preview & Edit**: Review the AI-generated content and the final rendered HTML before sending.
+-   **Attachment Support**: Send PDF brochures or images along with your emails.
+-   **Detailed Reporting**: Download a CSV report of sent emails and their status.
 
-
-
-he
-
-I'm an AI enthusiast passionate about leveraging artificial intelligence to solve real-world problems. I'm constantly learning and implementing new AI agent technologies to create intelligent, automated solutions that make life easier. This AI Meeting Scheduler is one of my projects that combines multiple AI capabilities into a seamless user experience.
-
-## Project Description
-
-The AI Meeting Scheduler is an intelligent automation tool that revolutionizes how we schedule meetings. Instead of manually crafting meeting invitations, this AI-powered application generates professional, contextual meeting emails using OpenAI's advanced language models. It seamlessly integrates with email systems to send calendar invites, making meeting coordination effortless.
-
-**Key Highlights:**
-- **AI-Powered Email Generation**: Uses OpenAI GPT models to create personalized, professional meeting invitations
-- **Automated Calendar Integration**: Generates and sends industry-standard .ics calendar files
-- **Smart Timezone Handling**: Automatically converts between local time and UTC for global compatibility
-- **User-Friendly Interface**: Built with Streamlit for an intuitive, modern web experience
-- **Multi-Recipient Support**: Send meeting invites to multiple attendees simultaneously
-
-## Features
-
-✨ **AI Email Generation** - Leverages OpenAI to craft professional meeting invitation emails  
-📧 **Email Integration** - Sends emails via SMTP with calendar attachments  
-📅 **Calendar Files** - Creates standards-compliant .ics files for all calendar applications  
-🌍 **Timezone Support** - Handles Asia/Kolkata to UTC conversion seamlessly  
-👥 **Multiple Recipients** - Invite multiple attendees with a single click  
-👀 **Email Preview** - Review AI-generated content before sending  
-🎨 **Clean UI** - Intuitive Streamlit interface for easy interaction
-
-## Installation
+## Installation 🛠️
 
 ### Prerequisites
-- Python 3.8 or higher
-- Gmail account with app-specific password enabled
-- OpenAI API key
 
-### Step-by-Step Setup
+-   Python 3.8 or higher
+-   Gmail account with **App Password** enabled (for SMTP)
+-   API Key for **OpenAI**, **OpenRouter**, or **Gemini**
 
-1. **Clone or download the repository:**
-   ```bash
-   cd path/to/your/folder
-   ```
+### Setup
 
-2. **Create a virtual environment (recommended):**
-   ```bash
-   python -m venv venv
-   ```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/vijaykushwaha-03/AI-EMAIL-Camping.git
+    cd AI-EMAIL-Camping
+    ```
 
-3. **Activate the virtual environment:**
-   ```bash
-   # Windows
-   .\venv\Scripts\activate
-   
-   # Linux/Mac
-   source venv/bin/activate
-   ```
+2.  **Create and activate a virtual environment:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # Linux/Mac
+    # .\venv\Scripts\activate  # Windows
+    ```
 
-4. **Install required dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-5. **Configure environment variables:**
-   - Copy `.env.example` to `.env`
-     ```bash
-     cp .env.example .env
-     ```
-   - Edit `.env` with your credentials:
-     - `EMAIL_ADDRESS`: Your Gmail address
-     - `EMAIL_PASSWORD`: Your Gmail app-specific password ([How to generate](https://support.google.com/accounts/answer/185833))
-     - `OPENAI_API_KEY`: Your OpenAI API key ([Get it here](https://platform.openai.com/api-keys))
-     - `SMTP_HOST`: smtp.gmail.com (default)
-     - `SMTP_PORT`: 587 (default)
+4.  **Configure Environment Variables:**
+    Create a `.env` file in the root directory and add your credentials:
+    ```env
+    # Email Configuration
+    EMAIL_ADDRESS=your_email@gmail.com
+    EMAIL_PASSWORD=your_app_specific_password
+    SMTP_HOST=smtp.gmail.com
+    SMTP_PORT=587
 
-6. **Run the application:**
-   ```bash
-   streamlit run app.py
-   ```
+    # AI Configuration (Add at least one)
+    OPENAI_API_KEY=sk-...
+    OPENROUTER_API_KEY=sk-or-...
+    GEMINI_API_KEY=...
+    ```
 
-7. **Access the app:**
-   - Open your browser and navigate to `http://localhost:8501`
+## Usage 🚀
 
-## Usage
+1.  **Run the App:**
+    ```bash
+    streamlit run app.py
+    ```
+2.  **Configure AI:**
+    -   In the sidebar, select your **AI Provider** (e.g., OpenRouter).
+    -   Enter the **Model Name** (e.g., `openai/gpt-5.1` or `gpt-4o`).
 
-1. Enter meeting details:
-   - Meeting title
-   - Date and time
-   - Duration
-   - Recipient email addresses (comma-separated)
-   - Optional notes
+3.  **Create Campaign:**
+    -   **Upload Contacts**: Upload a CSV file with `Name` and `Email` columns.
+    -   **Campaign Details**: Enter your Company Name, Product Name, Description, and Goal.
+    -   **Generate Template**: Click "Generate Email Template". The AI will create a persuasive email.
+    -   **Preview & Edit**: Review the generated text and the beautiful HTML preview. You can edit the Subject, Title, Body, and CTA text directly.
 
-2. Click "Generate Email" to preview the AI-generated invitation
+4.  **Send Emails:**
+    -   Select a batch size (start with "Test (1 email)").
+    -   Click **Send Emails**.
+    -   Download the status report when finished.
 
-3. Click "Send Invite" to send the meeting invite with calendar attachment
-
-## File Structure
+## File Structure 📂
 
 ```
-Agent/
-│
+AI-EMAIL-Camping/
 ├── app.py                      # Main Streamlit application
-├── scheduler_logic.py          # Core scheduling and AI logic
+├── services/
+│   ├── email_services.py       # SMTP email sending logic
+│   ├── openai_services.py      # AI integration (OpenAI/OpenRouter/Gemini)
+│   └── marketing_logic.py      # CSV processing utilities
+├── templates/
+│   └── custom_email_template.html  # The HTML template file
 ├── requirements.txt            # Python dependencies
-├── .env                        # Environment configuration (private)
-├── .env.example               # Environment template
-├── .gitignore                 # Git ignore rules
-├── README.md                  # Project documentation
-│
-└── services/
-    ├── email_services.py      # Email sending via SMTP
-    ├── ics_services.py        # Calendar .ics file generation
-    └── openai_services.py     # OpenAI API integration
+├── .env                        # Secrets (DO NOT COMMIT)
+└── README.md                   # Documentation
 ```
 
-## Technologies Used
+## Contributing 🤝
 
-- **Streamlit** - Modern web UI framework
-- **OpenAI GPT-4** - AI-powered email generation
-- **Python SMTP** - Email delivery
-- **pytz** - Timezone management
-- **iCalendar** - Standard calendar format
-
-## Important Notes
-
-⚠️ **Gmail Security**: Gmail requires an app-specific password for SMTP access. Regular passwords won't work.  
-📧 **Calendar Format**: Invites are sent as .ics attachments compatible with all major calendar apps (Google Calendar, Outlook, Apple Calendar)  
-🌏 **Timezone**: Default timezone is set to Asia/Kolkata. Modify in `app.py` if needed.  
-🔒 **Security**: Never commit your `.env` file to version control. It contains sensitive credentials.
-
-## Troubleshooting
-
-**Email not sending?**
-- Verify your Gmail app-specific password is correct
-- Ensure `SMTP_HOST` is set to `smtp.gmail.com` (not your email address)
-- Check that 2-factor authentication is enabled on your Gmail account
-
-**AI not generating emails?**
-- Verify your OpenAI API key is valid and has credits
-- Check your internet connection
-
-**Package installation errors?**
-- Ensure you're using Python 3.8 or higher
-- Try upgrading pip: `python -m pip install --upgrade pip`
-
-## Future Enhancements
-
-- 🔄 Support for other email providers (Outlook, Yahoo, etc.)
-- 🗓️ Integration with Google Calendar API
-- 🔔 Meeting reminders and follow-ups
-- 📊 Meeting analytics and scheduling insights
-- 🌐 Support for multiple timezones
-- 💬 Multi-language support
-
-## Contributing
-
-As an AI enthusiast always eager to learn, I welcome contributions, suggestions, and feedback! Feel free to:
-- Report bugs or issues
-- Suggest new features
-- Submit pull requests
-- Share your use cases
-
-## License
-
-This project is open-source and available for learning and implementation purposes.
+Contributions are welcome! Feel free to submit pull requests for new features, bug fixes, or additional email templates.
 
 ---
 
