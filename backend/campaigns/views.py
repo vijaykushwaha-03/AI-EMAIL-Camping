@@ -61,7 +61,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
                 self._send_email(
                     to_email=contact.email,
                     subject=campaign.subject,
-                    html_body=campaign.content
+                    html_body=campaign.content,
+                    cc_email=campaign.cc_email,
+                    bcc_email=campaign.bcc_email
                 )
                 EmailLog.objects.create(
                     campaign=campaign,
@@ -70,6 +72,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
                 )
                 sent += 1
             except Exception as e:
+                print(f"Error sending to {contact.email}: {e}")
                 EmailLog.objects.create(
                     campaign=campaign,
                     contact=contact,
@@ -88,12 +91,22 @@ class CampaignViewSet(viewsets.ModelViewSet):
             'message': f'Campaign sent to {sent} recipients'
         })
     
-    def _send_email(self, to_email, subject, html_body):
+    def _send_email(self, to_email, subject, html_body, cc_email=None, bcc_email=None):
         """Send a single email via SMTP"""
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
         msg['From'] = settings.EMAIL_ADDRESS
         msg['To'] = to_email
+        
+        recipients = [to_email]
+        
+        if cc_email:
+            msg['Cc'] = cc_email
+            recipients.append(cc_email)
+            
+        if bcc_email:
+            # BCC is not added to headers, but added to recipients list
+            recipients.append(bcc_email)
         
         msg.attach(MIMEText(html_body, 'html'))
         
@@ -101,5 +114,5 @@ class CampaignViewSet(viewsets.ModelViewSet):
         server.ehlo()
         server.starttls()
         server.login(settings.EMAIL_ADDRESS, settings.EMAIL_PASSWORD)
-        server.sendmail(settings.EMAIL_ADDRESS, [to_email], msg.as_string())
+        server.sendmail(settings.EMAIL_ADDRESS, recipients, msg.as_string())
         server.quit()

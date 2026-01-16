@@ -17,6 +17,8 @@ class Campaign(models.Model):
     name = models.CharField(max_length=255)
     subject = models.CharField(max_length=500)
     content = models.TextField(blank=True, default='')  # HTML content
+    cc_email = models.EmailField(null=True, blank=True, help_text="CC email address (receives a copy of EVERY email)")
+    bcc_email = models.EmailField(null=True, blank=True, help_text="BCC email address (receives a copy of EVERY email)")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     scheduled_at = models.DateTimeField(null=True, blank=True)
     sent_count = models.IntegerField(default=0)

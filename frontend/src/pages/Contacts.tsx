@@ -106,6 +106,8 @@ export function Contacts() {
             <Card className={styles.tableCard}>
                 {loading ? (
                     <div className={styles.loading}>Loading...</div>
+                ) : error ? (
+                    <div className={styles.error}>{error}</div>
                 ) : contacts.length === 0 ? (
                     <div className={styles.empty}>
                         <Mail size={48} className={styles.emptyIcon} />

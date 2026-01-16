@@ -102,6 +102,19 @@
     margin-bottom: var(--spacing-5);
 }
 
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-4);
+}
+
+.hint {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: var(--spacing-1);
+}
+
 .field label {
     display: block;
     font-size: var(--text-sm);
@@ -194,6 +207,17 @@
     background: var(--bg-hover);
     border-bottom: 1px solid var(--border-color);
     font-size: var(--text-sm);
+}
+
+.previewMeta {
+    padding: var(--spacing-2) var(--spacing-4);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
 }
 
 .previewBody {

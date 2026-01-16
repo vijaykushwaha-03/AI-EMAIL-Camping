@@ -41,6 +41,8 @@ export interface Campaign {
     name: string;
     subject: string;
     content: string;
+    cc_email?: string;
+    bcc_email?: string;
     status: 'draft' | 'scheduled' | 'sending' | 'sent';
     sent_count: number;
     open_count: number;
@@ -116,7 +118,7 @@ export const getCampaigns = async (): Promise<Campaign[]> => {
 export const getCampaign = (id: string) =>
     apiRequest<Campaign>(`/campaigns/${id}/`);
 
-export const createCampaign = (data: { name: string; subject: string; content?: string }) =>
+export const createCampaign = (data: { name: string; subject: string; content?: string; cc_email?: string; bcc_email?: string }) =>
     apiRequest<Campaign>('/campaigns/', {
         method: 'POST',
         body: JSON.stringify(data),

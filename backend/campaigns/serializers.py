@@ -10,7 +10,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = Campaign
         fields = [
-            'id', 'name', 'subject', 'content', 'status',
+            'id', 'name', 'subject', 'content', 'cc_email', 'bcc_email', 'status',
             'scheduled_at', 'sent_count', 'open_count', 'click_count',
             'open_rate', 'click_rate', 'recipient_count', 'created_at'
         ]
@@ -29,7 +29,7 @@ class CampaignCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Campaign
-        fields = ['name', 'subject', 'content', 'scheduled_at', 'recipient_ids']
+        fields = ['name', 'subject', 'content', 'cc_email', 'bcc_email', 'scheduled_at', 'recipient_ids']
     
     def create(self, validated_data):
         recipient_ids = validated_data.pop('recipient_ids', [])

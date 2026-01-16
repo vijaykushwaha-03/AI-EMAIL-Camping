@@ -1,28 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles, Send, Eye } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { pageVariants } from '../lib/animations';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { createCampaign, generateEmail, sendCampaign } from '../lib/api';
+import { createCampaign, generateEmail, sendCampaign, getCampaign, updateCampaign } from '../lib/api';
 import styles from './CampaignNew.module.css';
 
 type Step = 'details' | 'content' | 'preview' | 'send';
 
 export function CampaignNew() {
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [step, setStep] = useState<Step>('details');
     const [loading, setLoading] = useState(false);
     const [generating, setGenerating] = useState(false);
+    const [fetching, setFetching] = useState(false);
 
     const [form, setForm] = useState({
         name: '',
         subject: '',
         content: '',
+        cc_email: '',
+        bcc_email: '',
         prompt: ''
     });
 
     const [campaignId, setCampaignId] = useState<string | null>(null);
     const [sendResult, setSendResult] = useState<{ sent: number; failed: number } | null>(null);
+
+    useEffect(() => {
+        if (id) {
+            setCampaignId(id);
+            loadCampaign(id);
+        }
+    }, [id]);
+
+    const loadCampaign = async (id: string) => {
+        setFetching(true);
+        try {
+            const campaign = await getCampaign(id);
+            setForm({
+                name: campaign.name,
+                subject: campaign.subject,
+                content: campaign.content,
+                cc_email: campaign.cc_email || '',
+                bcc_email: campaign.bcc_email || '',
+                prompt: ''
+            });
+        } catch (e) {
+            alert('Failed to load campaign');
+            navigate('/campaigns');
+        } finally {
+            setFetching(false);
+        }
+    };
 
     const handleGenerate = async () => {
         if (!form.prompt) {
@@ -46,18 +79,30 @@ export function CampaignNew() {
         }
     };
 
-    const handleCreate = async () => {
+    const handleSave = async () => {
         setLoading(true);
         try {
-            const campaign = await createCampaign({
-                name: form.name,
-                subject: form.subject,
-                content: form.content
-            });
-            setCampaignId(campaign.id);
+            if (campaignId) {
+                await updateCampaign(campaignId, {
+                    name: form.name,
+                    subject: form.subject,
+                    content: form.content,
+                    cc_email: form.cc_email,
+                    bcc_email: form.bcc_email
+                });
+            } else {
+                const campaign = await createCampaign({
+                    name: form.name,
+                    subject: form.subject,
+                    content: form.content,
+                    cc_email: form.cc_email,
+                    bcc_email: form.bcc_email
+                });
+                setCampaignId(campaign.id);
+            }
             setStep('preview');
         } catch (e: unknown) {
-            alert('Failed to create campaign');
+            alert('Failed to save campaign');
         } finally {
             setLoading(false);
         }
@@ -80,6 +125,10 @@ export function CampaignNew() {
     const steps: Step[] = ['details', 'content', 'preview', 'send'];
     const currentIndex = steps.indexOf(step);
 
+    if (fetching) {
+        return <div className={styles.loading}>Loading campaign...</div>;
+    }
+
     return (
         <motion.div
             className={styles.page}
@@ -88,10 +137,10 @@ export function CampaignNew() {
             animate="animate"
         >
             <div className={styles.header}>
-                <button className={styles.backBtn} onClick={() => window.location.href = '/campaigns'}>
+                <button className={styles.backBtn} onClick={() => navigate('/campaigns')}>
                     <ArrowLeft size={20} /> Back to Campaigns
                 </button>
-                <h1>Create New Campaign</h1>
+                <h1>{id ? 'Edit Campaign' : 'Create New Campaign'}</h1>
             </div>
 
             {/* Progress */}
@@ -117,6 +166,28 @@ export function CampaignNew() {
                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                                 placeholder="e.g., Summer Sale Announcement"
                             />
+                        </div>
+                        <div className={styles.row}>
+                            <div className={styles.field}>
+                                <label>CC Email (Optional)</label>
+                                <input
+                                    type="email"
+                                    value={form.cc_email}
+                                    onChange={(e) => setForm({ ...form, cc_email: e.target.value })}
+                                    placeholder="manager@example.com"
+                                />
+                                <small className={styles.hint}>Receives a copy of EVERY email sent.</small>
+                            </div>
+                            <div className={styles.field}>
+                                <label>BCC Email (Optional)</label>
+                                <input
+                                    type="email"
+                                    value={form.bcc_email}
+                                    onChange={(e) => setForm({ ...form, bcc_email: e.target.value })}
+                                    placeholder="archive@example.com"
+                                />
+                                <small className={styles.hint}>Hidden copy of EVERY email sent.</small>
+                            </div>
                         </div>
                         <div className={styles.actions}>
                             <Button
@@ -184,12 +255,12 @@ export function CampaignNew() {
                                 <ArrowLeft size={18} /> Back
                             </Button>
                             <Button
-                                onClick={handleCreate}
+                                onClick={handleSave}
                                 disabled={!form.subject || !form.content}
                                 loading={loading}
                                 icon={<Eye size={18} />}
                             >
-                                Preview & Create
+                                {id ? 'Update & Preview' : 'Create & Preview'}
                             </Button>
                         </div>
                     </div>
@@ -203,6 +274,12 @@ export function CampaignNew() {
                             <div className={styles.previewHeader}>
                                 <strong>Subject:</strong> {form.subject}
                             </div>
+                            {(form.cc_email || form.bcc_email) && (
+                                <div className={styles.previewMeta}>
+                                    {form.cc_email && <div><strong>CC:</strong> {form.cc_email}</div>}
+                                    {form.bcc_email && <div><strong>BCC:</strong> {form.bcc_email}</div>}
+                                </div>
+                            )}
                             <div
                                 className={styles.previewBody}
                                 dangerouslySetInnerHTML={{ __html: form.content }}
@@ -232,7 +309,7 @@ export function CampaignNew() {
                             {sendResult.failed > 0 && (
                                 <p className={styles.failed}>{sendResult.failed} failed</p>
                             )}
-                            <Button onClick={() => window.location.href = '/campaigns'}>
+                            <Button onClick={() => navigate('/campaigns')}>
                                 Back to Campaigns
                             </Button>
                         </div>

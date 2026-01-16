@@ -67,6 +67,7 @@
 }
 
 .loading,
+.error,
 .empty {
     text-align: center;
     padding: var(--spacing-12);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Send, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Send, Edit, Trash2 } from 'lucide-react';
 import { pageVariants, containerVariants, itemVariants } from '../lib/animations';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';

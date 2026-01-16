@@ -40,6 +40,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/campaigns/new" element={<CampaignNew />} />
+              <Route path="/campaigns/:id" element={<CampaignNew />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/analytics" element={<Analytics />} />
