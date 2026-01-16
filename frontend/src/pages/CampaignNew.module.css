@@ -1,0 +1,228 @@
+.page {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: var(--spacing-6);
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    margin-bottom: var(--spacing-4);
+}
+
+.backBtn:hover {
+    color: var(--text-primary);
+}
+
+.header h1 {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Progress */
+.progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-8);
+    position: relative;
+}
+
+.progress::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border-color);
+    z-index: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-2);
+    position: relative;
+    z-index: 1;
+}
+
+.stepNumber {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    transition: all var(--transition-base);
+}
+
+.step.active .stepNumber {
+    background: var(--primary-500);
+    border-color: var(--primary-500);
+    color: white;
+}
+
+.stepLabel {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    text-transform: capitalize;
+}
+
+.step.active .stepLabel {
+    color: var(--text-primary);
+}
+
+/* Form */
+.formCard {
+    padding: var(--spacing-8);
+}
+
+.stepContent h2 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--spacing-6);
+}
+
+.field {
+    margin-bottom: var(--spacing-5);
+}
+
+.field label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-2);
+}
+
+.field input,
+.field textarea {
+    width: 100%;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: var(--text-base);
+    font-family: var(--font-family);
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.field input:focus,
+.field textarea:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+/* AI Box */
+.aiBox {
+    display: flex;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+    background: var(--gradient-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-6);
+}
+
+.aiIcon {
+    color: var(--secondary-400);
+    flex-shrink: 0;
+}
+
+.aiContent {
+    flex: 1;
+}
+
+.aiContent h3 {
+    font-size: var(--text-base);
+    margin: 0 0 var(--spacing-2);
+}
+
+.aiContent input {
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-3);
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    margin-bottom: var(--spacing-2);
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: var(--spacing-3);
+    justify-content: flex-end;
+    margin-top: var(--spacing-6);
+    padding-top: var(--spacing-6);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Preview */
+.preview {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--spacing-4);
+}
+
+.previewHeader {
+    padding: var(--spacing-3) var(--spacing-4);
+    background: var(--bg-hover);
+    border-bottom: 1px solid var(--border-color);
+    font-size: var(--text-sm);
+}
+
+.previewBody {
+    padding: var(--spacing-6);
+    background: white;
+    color: #333;
+    min-height: 200px;
+}
+
+/* Success */
+.success {
+    text-align: center;
+    padding: var(--spacing-8);
+}
+
+.successIcon {
+    color: var(--success-400);
+    margin-bottom: var(--spacing-4);
+}
+
+.success h2 {
+    margin-bottom: var(--spacing-2);
+}
+
+.success p {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-6);
+}
+
+.failed {
+    color: var(--error-400);
+}
