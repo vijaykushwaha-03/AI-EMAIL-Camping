@@ -14,83 +14,80 @@ Built by an AI enthusiast, this project has evolved from a simple meeting schedu
 -   **Attachment Support**: Send PDF brochures or images along with your emails.
 -   **Detailed Reporting**: Download a CSV report of sent emails and their status.
 
-## Installation 🛠️
+## Installation & Running 🛠️
+
+You can run this project using **Docker** (recommended for production/clean environments) or **Locally** (for development).
 
 ### Prerequisites
 
--   Python 3.8 or higher
--   Gmail account with **App Password** enabled (for SMTP)
+-   **Docker** (if using Docker)
+-   **Python 3.11+** (if running locally)
+-   **Node.js 18+** (if running locally)
 -   API Key for **OpenAI**, **OpenRouter**, or **Gemini**
 
-### Setup
-
-1.  **Clone the repository:**
+### Configuration
+1.  Copy `.env.example` to `.env` in the root directory.
     ```bash
-    git clone https://github.com/vijaykushwaha-03/AI-EMAIL-Camping.git
-    cd AI-EMAIL-Camping
+    cp .env.example .env
     ```
+2.  Fill in your API keys and email credentials in `.env`.
 
-2.  **Create and activate a virtual environment:**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # Linux/Mac
-    # .\venv\Scripts\activate  # Windows
+### Option 1: Run with Docker 🐳
+```bash
+docker-compose up --build
+```
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8000
+
+### Option 2: Run Locally (Win-Only Script) 🏃‍♂️
+We provide a PowerShell script to automate the setup (venv creation, dependencies, migrations) and startup.
+
+1.  **Run the script:**
+    ```powershell
+    .\run_local.ps1
     ```
+    This will open two new terminal windows: one for the Django backend and one for the React frontend.
 
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000/admin
 
-4.  **Configure Environment Variables:**
-    Create a `.env` file in the root directory and add your credentials:
-    ```env
-    # Email Configuration
-    EMAIL_ADDRESS=your_email@gmail.com
-    EMAIL_PASSWORD=your_app_specific_password
-    SMTP_HOST=smtp.gmail.com
-    SMTP_PORT=587
+### Option 3: Run Locally (Manual) 👨‍💻
+If you prefer to run commands manually:
 
-    # AI Configuration (Add at least one)
-    OPENAI_API_KEY=sk-...
-    OPENROUTER_API_KEY=sk-or-...
-    GEMINI_API_KEY=...
-    ```
+**Backend:**
+```bash
+cd backend
+python -m venv venv
+# Activate venv (Windows: .\venv\Scripts\activate, Unix: source venv/bin/activate)
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
 
-## Usage 🚀
-
-1.  **Run the App:**
-    ```bash
-    streamlit run app.py
-    ```
-2.  **Configure AI:**
-    -   In the sidebar, select your **AI Provider** (e.g., OpenRouter).
-    -   Enter the **Model Name** (e.g., `openai/gpt-5.1` or `gpt-4o`).
-
-3.  **Create Campaign:**
-    -   **Upload Contacts**: Upload a CSV file with `Name` and `Email` columns.
-    -   **Campaign Details**: Enter your Company Name, Product Name, Description, and Goal.
-    -   **Generate Template**: Click "Generate Email Template". The AI will create a persuasive email.
-    -   **Preview & Edit**: Review the generated text and the beautiful HTML preview. You can edit the Subject, Title, Body, and CTA text directly.
-
-4.  **Send Emails:**
-    -   Select a batch size (start with "Test (1 email)").
-    -   Click **Send Emails**.
-    -   Download the status report when finished.
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
 ## File Structure 📂
 
 ```
 AI-EMAIL-Camping/
-├── app.py                      # Main Streamlit application
-├── services/
-│   ├── email_services.py       # SMTP email sending logic
-│   ├── openai_services.py      # AI integration (OpenAI/OpenRouter/Gemini)
-│   └── marketing_logic.py      # CSV processing utilities
-├── templates/
-│   └── custom_email_template.html  # The HTML template file
-├── requirements.txt            # Python dependencies
-├── .env                        # Secrets (DO NOT COMMIT)
+├── backend/                    # Django API
+│   ├── campaigns/              # Campaign management
+│   ├── contacts/               # Contact management
+│   ├── ai_generator/           # AI content generation
+│   └── config/                 # Project settings
+├── frontend/                   # React + Vite UI
+│   ├── src/
+│   │   ├── components/
+│   │   ├── lib/
+│   │   └── App.tsx
+├── legacy_prototype/           # Old Streamlit version
+├── run_local.ps1               # Local run automation script
+├── docker-compose.yml          # Container orchestration
 └── README.md                   # Documentation
 ```
 

@@ -85,6 +85,7 @@ def generate_email(request):
             
     except Exception as e:
         error_msg = str(e)
+        print(f"DEBUG_ERROR: {error_msg}")  # Added for debugging
         # Provide helpful error message for common issues
         if '401' in error_msg or 'Unauthorized' in error_msg:
             error_msg = f"API Authentication failed. Please check your {provider} API key in .env file."
