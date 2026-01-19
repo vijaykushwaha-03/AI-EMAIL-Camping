@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 import io
-from marketing_logic import process_csv, validate_email
+from src.core.marketing import process_csv, validate_email
 
 class TestMarketingLogic(unittest.TestCase):
     def test_email_validation(self):

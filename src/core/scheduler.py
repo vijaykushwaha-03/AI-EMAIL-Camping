@@ -1,9 +1,9 @@
 import os
 import tempfile
 from datetime import datetime
-from services.openai_services import generate_email_template
-from services.ics_services import create_ics_file
-from services.email_services import send_email
+from src.services.ai_service import generate_email_template
+from src.services.ics_service import create_ics_file
+from src.services.email_service import send_email
 
 
 

@@ -61,7 +61,7 @@ Built by an AI enthusiast, this project has evolved from a simple meeting schedu
 
 1.  **Run the App:**
     ```bash
-    streamlit run app.py
+    streamlit run src/app.py
     ```
 2.  **Configure AI:**
     -   In the sidebar, select your **AI Provider** (e.g., OpenRouter).
@@ -82,13 +82,18 @@ Built by an AI enthusiast, this project has evolved from a simple meeting schedu
 
 ```
 AI-EMAIL-Camping/
-├── app.py                      # Main Streamlit application
-├── services/
-│   ├── email_services.py       # SMTP email sending logic
-│   ├── openai_services.py      # AI integration (OpenAI/OpenRouter/Gemini)
-│   └── marketing_logic.py      # CSV processing utilities
-├── templates/
-│   └── custom_email_template.html  # The HTML template file
+├── src/                        # Source code
+│   ├── app.py                  # Main Streamlit application
+│   ├── core/                   # Core business logic
+│   │   ├── marketing.py        # CSV processing & logic
+│   │   └── scheduler.py        # Scheduling logic
+│   ├── services/               # External services
+│   │   ├── email_service.py    # SMTP email sending
+│   │   ├── ai_service.py       # AI integration
+│   │   └── ics_service.py      # ICS file generation
+│   └── templates/
+│       └── custom_email_template.html  # HTML template
+├── tests/                      # Unit tests
 ├── requirements.txt            # Python dependencies
 ├── .env                        # Secrets (DO NOT COMMIT)
 └── README.md                   # Documentation

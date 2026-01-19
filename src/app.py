@@ -2,9 +2,15 @@ import streamlit as st
 import pandas as pd
 import os
 import tempfile
-from marketing_logic import process_csv, get_recipient_data
-from services.openai_services import generate_email_template
-from services.email_services import send_email
+import sys
+import os
+
+# Add the project root directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src.core.marketing import process_csv, get_recipient_data
+from src.services.ai_service import generate_email_template
+from src.services.email_service import send_email
 
 st.set_page_config(page_title='AI Email Marketing Agent', layout='wide')
 
@@ -104,7 +110,7 @@ if 'ai_data' in st.session_state:
 
     # Render HTML
     try:
-        with open("templates/custom_email_template.html", "r") as f:
+        with open("src/templates/custom_email_template.html", "r") as f:
             template_html = f.read()
             
         rendered_html = template_html.replace("{{ EMAIL_TITLE }}", title) \
