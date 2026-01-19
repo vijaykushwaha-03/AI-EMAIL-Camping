@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.core.marketing import process_csv, get_recipient_data
 from src.services.ai_service import generate_email_template
-from src.services.email_service import send_email
+from src.services.email_service import send_email, generate_html_email
 
 st.set_page_config(page_title='AI Email Marketing Agent', layout='wide')
 
@@ -21,7 +21,7 @@ with st.sidebar:
     st.header("Configuration")
     st.info("Ensure your .env file has valid SMTP and AI credentials.")
     
-    ai_provider = st.selectbox("Select AI Provider", ["OpenAI", "OpenRouter", "Gemini"])
+    ai_provider = st.selectbox("Select AI Provider", ["OpenRouter", "OpenAI", "Gemini"])
     
     model_name = "gpt-4o-mini" # Default
     if ai_provider == "OpenAI":
@@ -85,10 +85,15 @@ if st.button("Generate Email Template"):
         Keep it concise, engaging, and professional.
         """
         with st.spinner("Generating email..."):
-            # Now returns a dict
-            ai_data = generate_email_template(prompt, provider=ai_provider, model=model_name)
-            st.session_state['ai_data'] = ai_data
-            st.success("Email generated!")
+            try:
+                # Now returns a dict
+                ai_data = generate_email_template(prompt, provider=ai_provider, model=model_name)
+                st.session_state['ai_data'] = ai_data
+                st.success("Email generated!")
+            except Exception as e:
+                st.error(f"Error generating email: {str(e)}")
+                if "401" in str(e) or "api_key" in str(e).lower():
+                    st.warning("Please check your API key in the .env file.")
 
 if 'ai_data' in st.session_state:
     st.subheader("Preview")
@@ -109,86 +114,89 @@ if 'ai_data' in st.session_state:
         st.session_state['ai_data']['cta_link'] = cta_link
 
     # Render HTML
-    try:
-        with open("src/templates/custom_email_template.html", "r") as f:
-            template_html = f.read()
-            
-        rendered_html = template_html.replace("{{ EMAIL_TITLE }}", title) \
-                                     .replace("{{ EMAIL_BODY }}", body) \
-                                     .replace("{{ CTA_TEXT }}", cta_text) \
-                                     .replace("{{ CTA_LINK }}", cta_link) \
-                                     .replace("{{ COMPANY_NAME }}", company_name)
+    if company_name and title and body:
+        rendered_html = generate_html_email(
+            title=title,
+            body=body,
+            cta_text=cta_text,
+            cta_link=cta_link,
+            company_name=company_name
+        )
         
         st.session_state['final_html'] = rendered_html
         
         st.subheader("HTML Preview")
         st.components.v1.html(rendered_html, height=600, scrolling=True)
-        
-    except FileNotFoundError:
-        st.error("Template file not found. Please ensure 'templates/custom_email_template.html' exists.")
+    else:
+        st.warning("Please provide Company Name, Title, and Body to preview the email.")
 
 
 # --- Step 5: Send Emails ---
 st.header("5. Send Emails")
 
-if 'final_html' in st.session_state and valid_recipients:
-    batch_size = st.selectbox("Select Batch Size", ["Test (1 email)", "15", "50", "100", "All"])
-    
-    if st.button("Send Emails"):
-        # Determine number of emails to send
-        if batch_size == "Test (1 email)":
-            limit = 1
-        elif batch_size == "All":
-            limit = len(valid_recipients)
-        else:
-            limit = int(batch_size)
-            
-        recipients_to_send = valid_recipients[:limit]
+if 'final_html' in st.session_state:
+    if valid_recipients:
+        batch_size = st.selectbox("Select Batch Size", ["Test (1 email)", "15", "50", "100", "All"])
         
-        # Handle attachments
-        attachment_paths = []
-        if uploaded_attachments:
-            temp_dir = tempfile.mkdtemp()
-            for uploaded_file in uploaded_attachments:
-                path = os.path.join(temp_dir, uploaded_file.name)
-                with open(path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                attachment_paths.append(path)
-        
-        # Progress bar
-        progress_bar = st.progress(0)
-        status_log = []
-        
-        for i, recipient in enumerate(recipients_to_send):
-            # Personalize email
-            # Note: The template might not have [Name] placeholder in the body if AI didn't put it there.
-            # But we can try to replace it if it exists in the rendered HTML.
-            personalized_html = st.session_state['final_html'].replace("[Name]", recipient.get('name', 'there'))
+        if st.button("Send Emails"):
+            # Determine number of emails to send
+            if batch_size == "Test (1 email)":
+                limit = 1
+            elif batch_size == "All":
+                limit = len(valid_recipients)
+            else:
+                limit = int(batch_size)
+                
+            recipients_to_send = valid_recipients[:limit]
             
-            subject = st.session_state['ai_data'].get('subject', f"Regarding {product_name}")
+            # Handle attachments
+            attachment_paths = []
+            if uploaded_attachments:
+                temp_dir = tempfile.mkdtemp()
+                for uploaded_file in uploaded_attachments:
+                    path = os.path.join(temp_dir, uploaded_file.name)
+                    with open(path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    attachment_paths.append(path)
             
-            success = send_email(subject, personalized_html, [recipient['email']], attachment_paths)
+            # Progress bar
+            progress_bar = st.progress(0)
+            status_log = []
             
-            status_log.append({
-                "Email": recipient['email'],
-                "Name": recipient.get('name', ''),
-                "Status": "Sent" if success else "Failed",
-                "Timestamp": pd.Timestamp.now()
-            })
+            for i, recipient in enumerate(recipients_to_send):
+                # Personalize email
+                # Note: The template might not have [Name] placeholder in the body if AI didn't put it there.
+                # But we can try to replace it if it exists in the rendered HTML.
+                personalized_html = st.session_state['final_html'].replace("[Name]", recipient.get('name', 'there'))
+                
+                subject = st.session_state['ai_data'].get('subject', f"Regarding {product_name}")
+                
+                success = send_email(subject, personalized_html, [recipient['email']], attachment_paths)
+                
+                status_log.append({
+                    "Email": recipient['email'],
+                    "Name": recipient.get('name', ''),
+                    "Status": "Sent" if success else "Failed",
+                    "Timestamp": pd.Timestamp.now()
+                })
+                
+                progress_bar.progress((i + 1) / len(recipients_to_send))
+                
+            st.success(f"Process completed. Attempted: {len(recipients_to_send)}")
             
-            progress_bar.progress((i + 1) / len(recipients_to_send))
+            # Show status and download
+            status_df = pd.DataFrame(status_log)
+            st.dataframe(status_df)
             
-        st.success(f"Process completed. Attempted: {len(recipients_to_send)}")
-        
-        # Show status and download
-        status_df = pd.DataFrame(status_log)
-        st.dataframe(status_df)
-        
-        csv = status_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            "Download Status Report",
-            csv,
-            "email_campaign_status.csv",
-            "text/csv",
-            key='download-csv'
-        )
+            csv = status_df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "Download Status Report",
+                csv,
+                "email_campaign_status.csv",
+                "text/csv",
+                key='download-csv'
+            )
+    else:
+        st.warning("Please upload a CSV file with valid contacts (Step 1) to send emails.")
+else:
+    st.info("Please generate an email template (Step 4) to proceed to sending.")

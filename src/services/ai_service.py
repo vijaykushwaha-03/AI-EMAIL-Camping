@@ -13,6 +13,8 @@ def get_client(provider: str):
         base_url = "https://openrouter.ai/api/v1"
         if not api_key:
             raise ValueError("OpenRouter API Key not found in .env")
+        if "your-" in api_key.lower() or "..." in api_key:
+            raise ValueError(f"Invalid API Key detected: '{api_key}'. Please update your .env file with your actual OpenRouter API key.")
         return OpenAI(base_url=base_url, api_key=api_key)
     
     elif provider == "Gemini":
@@ -30,7 +32,12 @@ def get_client(provider: str):
         pass
 
     # Default to OpenAI
+    # Default to OpenAI
     api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OpenAI API Key not found in .env")
+    if "your-" in api_key.lower() or "..." in api_key:
+        raise ValueError(f"Invalid API Key detected: '{api_key}'. Please update your .env file with your actual OpenAI API key.")
     return OpenAI(api_key=api_key)
 
 def generate_email_template(prompt: str, max_tokens: int = 500, provider: str = "OpenAI", model: str = "gpt-4o-mini") -> dict:
@@ -83,10 +90,7 @@ def generate_email_template(prompt: str, max_tokens: int = 500, provider: str = 
                 "cta_text": "Learn More"
             }
             
+            
     except Exception as e:
-        return {
-            "subject": "Error",
-            "title": "Error Generating Email",
-            "body": f"An error occurred: {str(e)}",
-            "cta_text": "Retry"
-        }
+        # Re-raise the exception to be handled by the UI
+        raise e
